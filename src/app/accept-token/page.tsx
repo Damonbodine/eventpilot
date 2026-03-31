@@ -1,13 +1,12 @@
 "use client";
 
-import { useAuth, useClerk, useSignIn } from "@clerk/nextjs";
+import { useAuth, useSignIn } from "@clerk/nextjs";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState, Suspense } from "react";
 
 function AcceptTokenInner() {
   const { isSignedIn } = useAuth();
   const { signIn } = useSignIn();
-  const { setActive } = useClerk();
   const router = useRouter();
   const searchParams = useSearchParams();
   const [msg, setMsg] = useState("Signing in...");
@@ -21,26 +20,36 @@ function AcceptTokenInner() {
     const token = searchParams.get("token");
     if (!token || !signIn) return;
 
-    signIn
-      .create({ strategy: "ticket", ticket: token })
-      .then((result) => {
-        if (result.createdSessionId) {
-          setActive({ session: result.createdSessionId }).then(() => {
-            router.push("/dashboard");
-          });
+    (async () => {
+      try {
+        // Clerk v7 uses signIn.ticket() for ticket-based sign-in
+        const result = await (signIn as any).ticket({ ticket: token });
+        if (result?.error) {
+          setMsg("Error: " + result.error.message);
         } else {
-          setMsg("Sign-in status: " + (result.status ?? "unknown"));
+          // Ticket sign-in auto-sets the session in v7
+          router.push("/dashboard");
         }
-      })
-      .catch((err) => {
+      } catch (err: unknown) {
         const clerkErr = err as { errors?: Array<{ code: string; message: string }> };
         if (clerkErr.errors?.[0]?.code === "session_exists") {
           router.push("/dashboard");
         } else {
-          setMsg("Error: " + (clerkErr.errors?.[0]?.message ?? String(err)));
+          // Fallback: try legacy create() API
+          try {
+            const result = await (signIn as any).create({ strategy: "ticket", ticket: token });
+            if (result?.createdSessionId) {
+              router.push("/dashboard");
+            } else {
+              setMsg("Error: " + (clerkErr.errors?.[0]?.message ?? String(err)));
+            }
+          } catch {
+            setMsg("Error: " + (clerkErr.errors?.[0]?.message ?? String(err)));
+          }
         }
-      });
-  }, [isSignedIn, searchParams, signIn, setActive, router]);
+      }
+    })();
+  }, [isSignedIn, searchParams, signIn, router]);
 
   return <div style={{ padding: 40 }}>{msg}</div>;
 }
