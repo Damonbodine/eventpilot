@@ -1,0 +1,118 @@
+- generic [active] [ref=e1]:
+  - button "Open Next.js Dev Tools" [ref=e9] [cursor=pointer]:
+    - img [ref=e10]
+  - alert [ref=e13]
+  - generic [ref=e14]:
+    - generic [ref=e17]:
+      - link "EventPilot" [ref=e19] [cursor=pointer]:
+        - /url: /dashboard
+        - img [ref=e20]
+        - generic [ref=e22]: EventPilot
+      - generic [ref=e24]:
+        - generic [ref=e25]: Navigation
+        - list [ref=e27]:
+          - listitem [ref=e28]:
+            - link "Dashboard" [ref=e29] [cursor=pointer]:
+              - /url: /dashboard
+              - img [ref=e30]
+              - generic [ref=e35]: Dashboard
+          - listitem [ref=e36]:
+            - link "Events" [ref=e37] [cursor=pointer]:
+              - /url: /events
+              - img [ref=e38]
+              - generic [ref=e40]: Events
+          - listitem [ref=e41]:
+            - link "Calendar" [ref=e42] [cursor=pointer]:
+              - /url: /calendar
+              - img [ref=e43]
+              - generic [ref=e45]: Calendar
+          - listitem [ref=e46]:
+            - link "Speakers" [ref=e47] [cursor=pointer]:
+              - /url: /speakers
+              - img [ref=e48]
+              - generic [ref=e52]: Speakers
+          - listitem [ref=e53]:
+            - link "Sponsors" [ref=e54] [cursor=pointer]:
+              - /url: /sponsors
+              - img [ref=e55]
+              - generic [ref=e59]: Sponsors
+          - listitem [ref=e60]:
+            - link "Venues" [ref=e61] [cursor=pointer]:
+              - /url: /venues
+              - img [ref=e62]
+              - generic [ref=e65]: Venues
+          - listitem [ref=e66]:
+            - link "Reports" [ref=e67] [cursor=pointer]:
+              - /url: /reports
+              - img [ref=e68]
+              - generic [ref=e70]: Reports
+      - generic [ref=e72]:
+        - button "Open user menu" [ref=e74] [cursor=pointer]:
+          - img "Test Admin's logo" [ref=e77]
+        - generic [ref=e79]:
+          - paragraph [ref=e80]: Test Admin
+          - paragraph [ref=e81]: Admin
+    - main [ref=e82]:
+      - main [ref=e83]:
+        - generic [ref=e154]:
+          - generic [ref=e155]:
+            - heading "Venues" [level=1] [ref=e156]
+            - link "Add Venue" [ref=e157] [cursor=pointer]:
+              - /url: /venues/new
+              - img
+              - text: Add Venue
+          - table [ref=e160]:
+            - rowgroup [ref=e161]:
+              - row "Venue Location Capacity Amenities Status" [ref=e162]:
+                - columnheader "Venue" [ref=e163]
+                - columnheader "Location" [ref=e164]
+                - columnheader "Capacity" [ref=e165]
+                - columnheader "Amenities" [ref=e166]
+                - columnheader "Status" [ref=e167]
+                - columnheader [ref=e168]
+            - rowgroup [ref=e169]:
+              - row "QA Test Community Hall Austin, TX 150 Wifi Active" [ref=e170]:
+                - cell "QA Test Community Hall" [ref=e171]
+                - cell "Austin, TX" [ref=e172]
+                - cell "150" [ref=e173]
+                - cell "Wifi" [ref=e174]:
+                  - generic [ref=e176]: Wifi
+                - cell "Active" [ref=e177]:
+                  - generic [ref=e178]: Active
+                - cell [ref=e179]
+              - row "Riverside Park Pavilion Austin, TX 200 Parking Outdoor Active" [ref=e180]:
+                - cell "Riverside Park Pavilion" [ref=e181]
+                - cell "Austin, TX" [ref=e182]
+                - cell "200" [ref=e183]
+                - cell "Parking Outdoor" [ref=e184]:
+                  - generic [ref=e185]:
+                    - generic [ref=e186]: Parking
+                    - generic [ref=e187]: Outdoor
+                - cell "Active" [ref=e188]:
+                  - generic [ref=e189]: Active
+                - cell [ref=e190]
+              - row "Community Room at Central Library Austin, TX 80 Projector Wifi Wheelchair Active" [ref=e191]:
+                - cell "Community Room at Central Library" [ref=e192]
+                - cell "Austin, TX" [ref=e193]
+                - cell "80" [ref=e194]
+                - cell "Projector Wifi Wheelchair" [ref=e195]:
+                  - generic [ref=e196]:
+                    - generic [ref=e197]: Projector
+                    - generic [ref=e198]: Wifi
+                    - generic [ref=e199]: Wheelchair
+                - cell "Active" [ref=e200]:
+                  - generic [ref=e201]: Active
+                - cell [ref=e202]
+              - row "Austin Convention Center Austin, TX 500 Projector Microphone Wifi +4 Active" [ref=e203]:
+                - cell "Austin Convention Center" [ref=e204]
+                - cell "Austin, TX" [ref=e205]
+                - cell "500" [ref=e206]
+                - cell "Projector Microphone Wifi +4" [ref=e207]:
+                  - generic [ref=e208]:
+                    - generic [ref=e209]: Projector
+                    - generic [ref=e210]: Microphone
+                    - generic [ref=e211]: Wifi
+                    - generic [ref=e212]: "+4"
+                - cell "Active" [ref=e213]:
+                  - generic [ref=e214]: Active
+                - cell [ref=e215]

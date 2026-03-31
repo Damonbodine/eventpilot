@@ -1,5 +1,6 @@
 import { query, mutation } from "./_generated/server";
 import { v } from "convex/values";
+import { getAuthenticatedUser, assertCanManageEvent } from "./auth.helpers";
 
 const SPONSORSHIP_LEVEL = v.union(
   v.literal("Presenting"),
@@ -18,7 +19,7 @@ export const listByEvent = query({
     const eventSponsors = await ctx.db
       .query("eventSponsors")
       .withIndex("by_eventId", (q) => q.eq("eventId", args.eventId))
-      .collect();
+      .take(100);
 
     // Join sponsor name and details
     const results = await Promise.all(
@@ -45,7 +46,7 @@ export const listBySponsor = query({
     const eventSponsors = await ctx.db
       .query("eventSponsors")
       .withIndex("by_sponsorId", (q) => q.eq("sponsorId", args.sponsorId))
-      .collect();
+      .take(100);
 
     // Join event name and date
     const results = await Promise.all(
@@ -72,8 +73,8 @@ export const create = mutation({
     notes: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
-    const identity = await ctx.auth.getUserIdentity();
-    if (!identity) throw new Error("Not authenticated");
+    const user = await getAuthenticatedUser(ctx);
+    await assertCanManageEvent(ctx, user, args.eventId);
     const event = await ctx.db.get(args.eventId);
     if (!event) throw new Error("Event not found");
     const sponsor = await ctx.db.get(args.sponsorId);
@@ -83,7 +84,7 @@ export const create = mutation({
     const existing = await ctx.db
       .query("eventSponsors")
       .withIndex("by_eventId", (q) => q.eq("eventId", args.eventId))
-      .collect();
+      .take(100);
     const duplicate = existing.find((es) => es.sponsorId === args.sponsorId);
     if (duplicate) throw new Error("This sponsor is already linked to this event");
 
@@ -97,10 +98,10 @@ export const create = mutation({
 export const remove = mutation({
   args: { id: v.id("eventSponsors") },
   handler: async (ctx, args) => {
-    const identity = await ctx.auth.getUserIdentity();
-    if (!identity) throw new Error("Not authenticated");
+    const user = await getAuthenticatedUser(ctx);
     const existing = await ctx.db.get(args.id);
     if (!existing) throw new Error("Event sponsor link not found");
+    await assertCanManageEvent(ctx, user, existing.eventId);
     await ctx.db.delete(args.id);
   },
 });

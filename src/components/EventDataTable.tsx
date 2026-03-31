@@ -11,7 +11,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { buttonVariants } from "@/components/ui/button";
 import Link from "next/link";
-import { cn } from "@/lib/utils";
+import { cn, formatDate, formatEnumLabel } from "@/lib/utils";
 
 interface Event {
   _id: string;
@@ -82,7 +82,7 @@ export function EventDataTable({ events }: EventDataTableProps) {
                     TYPE_COLORS[event.eventType] ?? TYPE_COLORS.Other
                   )}
                 >
-                  {event.eventType}
+                  {formatEnumLabel(event.eventType)}
                 </Badge>
               </TableCell>
               <TableCell>
@@ -91,7 +91,7 @@ export function EventDataTable({ events }: EventDataTableProps) {
                 </Badge>
               </TableCell>
               <TableCell className="text-muted-foreground text-sm">
-                {event.startDate} {event.startTime}
+                {formatDate(event.startDate)} {event.startTime}
               </TableCell>
               <TableCell>
                 <Badge variant="outline" className="text-xs">

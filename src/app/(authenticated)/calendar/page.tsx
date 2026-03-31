@@ -2,6 +2,7 @@
 
 import { useQuery } from 'convex/react';
 import { api } from '@/convex/_generated/api';
+import { formatEnumLabel, formatDate } from '@/lib/utils';
 
 export default function EventCalendarPage() {
   const user = useQuery(api.users.getCurrentUser);
@@ -13,13 +14,13 @@ export default function EventCalendarPage() {
       <div className="rounded-md border p-4">
         <p className="text-muted-foreground text-sm mb-4">Upcoming events:</p>
         <div className="space-y-2">
-          {(events ?? []).map((event: {_id: string; name: string; eventType: string; status: string; startTime: string}) => (
+          {(events ?? []).map((event: {_id: string; name: string; eventType: string; status: string; startDate: string | number; startTime: string}) => (
             <div key={event._id} className="flex items-center justify-between rounded-lg border p-3">
               <div>
                 <p className="font-medium">{event.name}</p>
-                <p className="text-xs text-muted-foreground">{event.eventType} · {event.status}</p>
+                <p className="text-xs text-muted-foreground">{formatEnumLabel(event.eventType)} · {event.status}</p>
               </div>
-              <p className="text-sm text-muted-foreground">{event.startTime}</p>
+              <p className="text-sm text-muted-foreground">{formatDate(event.startDate)} {event.startTime}</p>
             </div>
           ))}
           {!events && <p className="text-muted-foreground">Loading...</p>}

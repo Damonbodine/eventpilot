@@ -1,5 +1,6 @@
 import { query, mutation } from "./_generated/server";
 import { v } from "convex/values";
+import { getAuthenticatedUser, assertRole } from "./auth.helpers";
 
 const VENUE_STATUS = v.union(v.literal("Active"), v.literal("Inactive"));
 
@@ -46,8 +47,8 @@ export const create = mutation({
     notes: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
-    const identity = await ctx.auth.getUserIdentity();
-    if (!identity) throw new Error("Not authenticated");
+    const user = await getAuthenticatedUser(ctx);
+    assertRole(user, ["Admin", "EventCoordinator", "Coordinator"]);
     return await ctx.db.insert("venues", {
       ...args,
       status: "Active",
@@ -73,8 +74,8 @@ export const update = mutation({
     status: v.optional(VENUE_STATUS),
   },
   handler: async (ctx, args) => {
-    const identity = await ctx.auth.getUserIdentity();
-    if (!identity) throw new Error("Not authenticated");
+    const user = await getAuthenticatedUser(ctx);
+    assertRole(user, ["Admin", "EventCoordinator", "Coordinator"]);
     const { id, ...fields } = args;
     const existing = await ctx.db.get(id);
     if (!existing) throw new Error("Venue not found");
@@ -88,8 +89,8 @@ export const update = mutation({
 export const remove = mutation({
   args: { id: v.id("venues") },
   handler: async (ctx, args) => {
-    const identity = await ctx.auth.getUserIdentity();
-    if (!identity) throw new Error("Not authenticated");
+    const user = await getAuthenticatedUser(ctx);
+    assertRole(user, ["Admin"]);
     const existing = await ctx.db.get(args.id);
     if (!existing) throw new Error("Venue not found");
     await ctx.db.delete(args.id);

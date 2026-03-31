@@ -1,5 +1,6 @@
 import { query, mutation } from "./_generated/server";
 import { v } from "convex/values";
+import { getAuthenticatedUser, assertRole, assertCanManageEvent, assertCanCheckIn } from "./auth.helpers";
 
 const PAYMENT_STATUS = v.union(
   v.literal("Pending"),
@@ -22,7 +23,7 @@ export const listByEvent = query({
     const registrations = await ctx.db
       .query("registrations")
       .withIndex("by_eventId", (q) => q.eq("eventId", args.eventId))
-      .collect();
+      .take(500);
 
     // Join ticketType name
     const results = await Promise.all(
@@ -51,6 +52,7 @@ export const create = mutation({
     registeredById: v.optional(v.id("users")),
   },
   handler: async (ctx, args) => {
+    // Registration is allowed for any authenticated user (including Registrants)
     const identity = await ctx.auth.getUserIdentity();
     if (!identity) throw new Error("Not authenticated");
 
@@ -81,7 +83,7 @@ export const create = mutation({
       const existingRegs = await ctx.db
         .query("registrations")
         .withIndex("by_ticketTypeId", (q) => q.eq("ticketTypeId", args.ticketTypeId))
-        .collect();
+        .take(500);
       const soldCount = existingRegs
         .filter((r) => r.status !== "Cancelled")
         .reduce((sum, r) => sum + r.quantity, 0);
@@ -100,7 +102,7 @@ export const create = mutation({
       const allEventRegs = await ctx.db
         .query("registrations")
         .withIndex("by_eventId", (q) => q.eq("eventId", args.eventId))
-        .collect();
+        .take(500);
       const totalConfirmed = allEventRegs
         .filter((r) => r.status !== "Cancelled")
         .reduce((sum, r) => sum + r.quantity, 0);
@@ -133,11 +135,13 @@ export const create = mutation({
 export const checkIn = mutation({
   args: { id: v.id("registrations") },
   handler: async (ctx, args) => {
-    const identity = await ctx.auth.getUserIdentity();
-    if (!identity) throw new Error("Not authenticated");
+    const user = await getAuthenticatedUser(ctx);
 
     const registration = await ctx.db.get(args.id);
     if (!registration) throw new Error("Registration not found");
+
+    // Role check: Admin, EventCoordinator, Coordinator, or Volunteer can check in
+    await assertCanCheckIn(ctx, user, registration.eventId);
 
     // Business rule: only Confirmed registrations can be checked in
     if (registration.status !== "Confirmed") {
@@ -147,15 +151,10 @@ export const checkIn = mutation({
       throw new Error("Attendee is already checked in");
     }
 
-    const user = await ctx.db
-      .query("users")
-      .withIndex("by_clerkId", (q) => q.eq("clerkId", identity.subject))
-      .unique();
-
     await ctx.db.patch(args.id, {
       checkedIn: true,
       checkedInAt: Date.now(),
-      checkedInById: user?._id,
+      checkedInById: user._id,
     });
   },
 });
@@ -166,8 +165,8 @@ export const updatePaymentStatus = mutation({
     paymentStatus: PAYMENT_STATUS,
   },
   handler: async (ctx, args) => {
-    const identity = await ctx.auth.getUserIdentity();
-    if (!identity) throw new Error("Not authenticated");
+    const user = await getAuthenticatedUser(ctx);
+    assertRole(user, ["Admin", "EventCoordinator", "Coordinator"]);
     const existing = await ctx.db.get(args.id);
     if (!existing) throw new Error("Registration not found");
     await ctx.db.patch(args.id, { paymentStatus: args.paymentStatus });
@@ -177,8 +176,8 @@ export const updatePaymentStatus = mutation({
 export const cancel = mutation({
   args: { id: v.id("registrations") },
   handler: async (ctx, args) => {
-    const identity = await ctx.auth.getUserIdentity();
-    if (!identity) throw new Error("Not authenticated");
+    const user = await getAuthenticatedUser(ctx);
+    assertRole(user, ["Admin", "EventCoordinator", "Coordinator"]);
     const registration = await ctx.db.get(args.id);
     if (!registration) throw new Error("Registration not found");
     if (registration.status === "Cancelled") throw new Error("Registration is already cancelled");
@@ -189,7 +188,7 @@ export const cancel = mutation({
       const waitlisted = await ctx.db
         .query("registrations")
         .withIndex("by_ticketTypeId", (q) => q.eq("ticketTypeId", registration.ticketTypeId))
-        .collect();
+        .take(500);
       const firstWaitlisted = waitlisted.find((r) => r.status === "WaitListed");
       if (firstWaitlisted) {
         await ctx.db.patch(firstWaitlisted._id, { status: "Confirmed" });
@@ -200,7 +199,7 @@ export const cancel = mutation({
         const remaining = await ctx.db
           .query("registrations")
           .withIndex("by_ticketTypeId", (q) => q.eq("ticketTypeId", registration.ticketTypeId))
-          .collect();
+          .take(500);
         const soldCount = remaining
           .filter((r) => r.status !== "Cancelled" && r._id !== args.id)
           .reduce((sum, r) => sum + r.quantity, 0);
@@ -220,7 +219,7 @@ export const getCheckInStats = query({
     const registrations = await ctx.db
       .query("registrations")
       .withIndex("by_eventId", (q) => q.eq("eventId", args.eventId))
-      .collect();
+      .take(500);
     const confirmed = registrations.filter((r) => r.status === "Confirmed");
     const checkedIn = confirmed.filter((r) => r.checkedIn);
     return {

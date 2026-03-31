@@ -51,17 +51,16 @@ export function SponsorForm({ sponsor }: SponsorFormProps) {
     setLoading(true);
     setError('');
     try {
-      const payload = {
+      const base = {
         organizationName, contactName, contactEmail, contactPhone, benefits,
         sponsorshipLevel: sponsorshipLevel as typeof LEVELS[number],
         amount: parseFloat(amount),
-        status: status as typeof STATUSES[number],
         logoUrl: logoUrl || undefined,
       };
       if (sponsor) {
-        await updateSponsor({ id: sponsor._id, ...payload });
+        await updateSponsor({ id: sponsor._id, ...base, status: status as typeof STATUSES[number] });
       } else {
-        await createSponsor(payload);
+        await createSponsor(base);
       }
       router.push('/sponsors');
     } catch (err: unknown) {

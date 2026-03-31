@@ -1,5 +1,6 @@
 import { query, mutation } from "./_generated/server";
 import { v } from "convex/values";
+import { getAuthenticatedUser, assertCanManageEvent } from "./auth.helpers";
 
 const SESSION_TYPE = v.union(
   v.literal("Keynote"),
@@ -16,7 +17,7 @@ export const listByEvent = query({
     const sessions = await ctx.db
       .query("sessions")
       .withIndex("by_eventId", (q) => q.eq("eventId", args.eventId))
-      .collect();
+      .take(100);
 
     // Join speaker names
     const results = await Promise.all(
@@ -54,8 +55,8 @@ export const create = mutation({
     speakerIds: v.array(v.id("speakers")),
   },
   handler: async (ctx, args) => {
-    const identity = await ctx.auth.getUserIdentity();
-    if (!identity) throw new Error("Not authenticated");
+    const user = await getAuthenticatedUser(ctx);
+    await assertCanManageEvent(ctx, user, args.eventId);
     const event = await ctx.db.get(args.eventId);
     if (!event) throw new Error("Event not found");
     return await ctx.db.insert("sessions", {
@@ -78,11 +79,11 @@ export const update = mutation({
     speakerIds: v.optional(v.array(v.id("speakers"))),
   },
   handler: async (ctx, args) => {
-    const identity = await ctx.auth.getUserIdentity();
-    if (!identity) throw new Error("Not authenticated");
+    const user = await getAuthenticatedUser(ctx);
     const { id, ...fields } = args;
     const existing = await ctx.db.get(id);
     if (!existing) throw new Error("Session not found");
+    await assertCanManageEvent(ctx, user, existing.eventId);
     const updates = Object.fromEntries(
       Object.entries(fields).filter(([, v]) => v !== undefined)
     );
@@ -93,10 +94,10 @@ export const update = mutation({
 export const remove = mutation({
   args: { id: v.id("sessions") },
   handler: async (ctx, args) => {
-    const identity = await ctx.auth.getUserIdentity();
-    if (!identity) throw new Error("Not authenticated");
+    const user = await getAuthenticatedUser(ctx);
     const existing = await ctx.db.get(args.id);
     if (!existing) throw new Error("Session not found");
+    await assertCanManageEvent(ctx, user, existing.eventId);
     await ctx.db.delete(args.id);
   },
 });

@@ -5,7 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { buttonVariants } from "@/components/ui/button";
 import { CalendarIcon, MapPinIcon, GlobeIcon, UsersIcon } from "lucide-react";
 import Link from "next/link";
-import { cn } from "@/lib/utils";
+import { cn, formatDate, formatEnumLabel } from "@/lib/utils";
 
 interface PublicEventCardProps {
   event: {
@@ -60,7 +60,7 @@ export function PublicEventCard({ event }: PublicEventCardProps) {
             variant="outline"
             className={cn("text-sm px-3 py-1", TYPE_COLORS[event.eventType] ?? TYPE_COLORS.Other)}
           >
-            {event.eventType}
+            {formatEnumLabel(event.eventType)}
           </Badge>
         </div>
       )}
@@ -72,7 +72,7 @@ export function PublicEventCard({ event }: PublicEventCardProps) {
               variant="outline"
               className={cn("shrink-0 text-xs", TYPE_COLORS[event.eventType] ?? TYPE_COLORS.Other)}
             >
-              {event.eventType}
+              {formatEnumLabel(event.eventType)}
             </Badge>
           )}
         </div>
@@ -82,7 +82,7 @@ export function PublicEventCard({ event }: PublicEventCardProps) {
         <div className="flex flex-col gap-1.5 text-sm text-muted-foreground">
           <div className="flex items-center gap-2">
             <CalendarIcon className="h-3.5 w-3.5 text-primary shrink-0" />
-            <span>{event.startDate} · {event.startTime}</span>
+            <span>{formatDate(event.startDate)} · {event.startTime}</span>
           </div>
           <div className="flex items-center gap-2">
             {event.isVirtual ? (
@@ -108,7 +108,7 @@ export function PublicEventCard({ event }: PublicEventCardProps) {
             Sold Out
           </span>
         ) : (
-          <Link href={`/events/${event._id}`} className={cn(buttonVariants(), "w-full")}>
+          <Link href={`/browse/${event._id}`} className={cn(buttonVariants(), "w-full")}>
             Register Now
           </Link>
         )}

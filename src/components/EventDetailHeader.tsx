@@ -13,7 +13,7 @@ import {
   CopyIcon,
   SendIcon,
 } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { cn, formatDate, formatEnumLabel } from "@/lib/utils";
 
 interface EventDetailHeaderProps {
   event: {
@@ -71,7 +71,7 @@ export function EventDetailHeader({
                 {event.status}
               </Badge>
               <Badge variant="outline" className="text-xs text-muted-foreground">
-                {event.eventType}
+                {formatEnumLabel(event.eventType)}
               </Badge>
               {event.isPublic && (
                 <Badge variant="outline" className="text-xs text-green-400 border-green-500/30 bg-green-500/10">
@@ -115,7 +115,7 @@ export function EventDetailHeader({
           <div className="flex items-center gap-2">
             <CalendarIcon className="h-4 w-4 text-primary" />
             <span>
-              {event.startDate} {event.startTime} — {event.endDate} {event.endTime}
+              {formatDate(event.startDate)} {event.startTime} — {formatDate(event.endDate)} {event.endTime}
             </span>
             <span className="text-xs">({event.timezone})</span>
           </div>

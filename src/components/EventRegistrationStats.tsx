@@ -104,7 +104,7 @@ export function EventRegistrationStats({ eventId }: EventRegistrationStatsProps)
                   <Progress value={pct} className="h-1.5 bg-muted" />
                 )}
                 <p className="text-xs text-muted-foreground">
-                  {tt.price === 0 ? "Free" : `$${(tt.price / 100).toFixed(2)}`}
+                  {tt.price === 0 ? "Free" : `$${tt.price.toLocaleString()}`}
                 </p>
               </div>
             );

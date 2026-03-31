@@ -1,0 +1,112 @@
+- generic [active] [ref=e1]:
+  - button "Open Next.js Dev Tools" [ref=e9] [cursor=pointer]:
+    - img [ref=e10]
+  - alert [ref=e13]
+  - generic [ref=e14]:
+    - generic [ref=e17]:
+      - link "EventPilot" [ref=e19] [cursor=pointer]:
+        - /url: /dashboard
+        - img [ref=e20]
+        - generic [ref=e22]: EventPilot
+      - generic [ref=e24]:
+        - generic [ref=e25]: Navigation
+        - list [ref=e27]:
+          - listitem [ref=e28]:
+            - link "Dashboard" [ref=e29] [cursor=pointer]:
+              - /url: /dashboard
+              - img [ref=e30]
+              - generic [ref=e35]: Dashboard
+          - listitem [ref=e36]:
+            - link "Events" [ref=e37] [cursor=pointer]:
+              - /url: /events
+              - img [ref=e38]
+              - generic [ref=e40]: Events
+          - listitem [ref=e41]:
+            - link "Calendar" [ref=e42] [cursor=pointer]:
+              - /url: /calendar
+              - img [ref=e43]
+              - generic [ref=e45]: Calendar
+          - listitem [ref=e46]:
+            - link "Speakers" [ref=e47] [cursor=pointer]:
+              - /url: /speakers
+              - img [ref=e48]
+              - generic [ref=e52]: Speakers
+          - listitem [ref=e53]:
+            - link "Sponsors" [ref=e54] [cursor=pointer]:
+              - /url: /sponsors
+              - img [ref=e55]
+              - generic [ref=e59]: Sponsors
+          - listitem [ref=e60]:
+            - link "Venues" [ref=e61] [cursor=pointer]:
+              - /url: /venues
+              - img [ref=e62]
+              - generic [ref=e65]: Venues
+          - listitem [ref=e66]:
+            - link "Reports" [ref=e67] [cursor=pointer]:
+              - /url: /reports
+              - img [ref=e68]
+              - generic [ref=e70]: Reports
+      - generic [ref=e72]:
+        - button "Open user menu" [ref=e74] [cursor=pointer]:
+          - img "Test Admin's logo" [ref=e77]
+        - generic [ref=e79]:
+          - paragraph [ref=e80]: Test Admin
+          - paragraph [ref=e81]: Admin
+    - main [ref=e82]:
+      - main [ref=e83]:
+        - generic [ref=e117]:
+          - generic [ref=e118]:
+            - heading "Speakers" [level=1] [ref=e119]
+            - link "Add Speaker" [ref=e120] [cursor=pointer]:
+              - /url: /speakers/new
+              - img
+              - text: Add Speaker
+          - table [ref=e123]:
+            - rowgroup [ref=e124]:
+              - row "Speaker Title / Org Email Status" [ref=e125]:
+                - columnheader "Speaker" [ref=e126]
+                - columnheader "Title / Org" [ref=e127]
+                - columnheader "Email" [ref=e128]
+                - columnheader "Status" [ref=e129]
+                - columnheader [ref=e130]
+            - rowgroup [ref=e131]:
+              - row "QT QA TestSpeaker QA Lead · Factory512 qa-speaker@test.com Confirmed" [ref=e132]:
+                - cell "QT QA TestSpeaker" [ref=e133]:
+                  - generic [ref=e134]:
+                    - generic [ref=e136]: QT
+                    - generic [ref=e137]: QA TestSpeaker
+                - cell "QA Lead · Factory512" [ref=e138]
+                - cell "qa-speaker@test.com" [ref=e139]
+                - cell "Confirmed" [ref=e140]:
+                  - generic [ref=e141]: Confirmed
+                - cell [ref=e142]
+              - row "AW Angela Washington Executive Director · Community First Alliance angela@communityfirst.org Tentative" [ref=e143]:
+                - cell "AW Angela Washington" [ref=e144]:
+                  - generic [ref=e145]:
+                    - generic [ref=e147]: AW
+                    - generic [ref=e148]: Angela Washington
+                - cell "Executive Director · Community First Alliance" [ref=e149]
+                - cell "angela@communityfirst.org" [ref=e150]
+                - cell "Tentative" [ref=e151]:
+                  - generic [ref=e152]: Tentative
+                - cell [ref=e153]
+              - row "DK David Kim Chief Technology Officer · Tech for Good Foundation david.kim@techforgood.org Confirmed" [ref=e154]:
+                - cell "DK David Kim" [ref=e155]:
+                  - generic [ref=e156]:
+                    - generic [ref=e158]: DK
+                    - generic [ref=e159]: David Kim
+                - cell "Chief Technology Officer · Tech for Good Foundation" [ref=e160]
+                - cell "david.kim@techforgood.org" [ref=e161]
+                - cell "Confirmed" [ref=e162]:
+                  - generic [ref=e163]: Confirmed
+                - cell [ref=e164]
+              - row "MG Maria Gonzalez Professor of Nonprofit Management · UT Austin maria.gonzalez@university.edu Confirmed" [ref=e165]:
+                - cell "MG Maria Gonzalez" [ref=e166]:
+                  - generic [ref=e167]:
+                    - generic [ref=e169]: MG
+                    - generic [ref=e170]: Maria Gonzalez
+                - cell "Professor of Nonprofit Management · UT Austin" [ref=e171]
+                - cell "maria.gonzalez@university.edu" [ref=e172]
+                - cell "Confirmed" [ref=e173]:
+                  - generic [ref=e174]: Confirmed
+                - cell [ref=e175]

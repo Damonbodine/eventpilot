@@ -1,5 +1,6 @@
 import { query, mutation } from "./_generated/server";
 import { v } from "convex/values";
+import { getAuthenticatedUser, assertRole } from "./auth.helpers";
 
 const SPONSORSHIP_LEVEL = v.union(
   v.literal("Presenting"),
@@ -38,7 +39,7 @@ export const getById = query({
     const eventSponsors = await ctx.db
       .query("eventSponsors")
       .withIndex("by_sponsorId", (q) => q.eq("sponsorId", args.id))
-      .collect();
+      .take(100);
 
     const eventHistory = await Promise.all(
       eventSponsors.map(async (es) => {
@@ -71,8 +72,8 @@ export const create = mutation({
     logoUrl: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
-    const identity = await ctx.auth.getUserIdentity();
-    if (!identity) throw new Error("Not authenticated");
+    const user = await getAuthenticatedUser(ctx);
+    assertRole(user, ["Admin", "EventCoordinator", "Coordinator"]);
     return await ctx.db.insert("sponsors", {
       ...args,
       status: "Pledged",
@@ -95,8 +96,8 @@ export const update = mutation({
     status: v.optional(SPONSOR_STATUS),
   },
   handler: async (ctx, args) => {
-    const identity = await ctx.auth.getUserIdentity();
-    if (!identity) throw new Error("Not authenticated");
+    const user = await getAuthenticatedUser(ctx);
+    assertRole(user, ["Admin", "EventCoordinator", "Coordinator"]);
     const { id, ...fields } = args;
     const existing = await ctx.db.get(id);
     if (!existing) throw new Error("Sponsor not found");
@@ -110,8 +111,8 @@ export const update = mutation({
 export const remove = mutation({
   args: { id: v.id("sponsors") },
   handler: async (ctx, args) => {
-    const identity = await ctx.auth.getUserIdentity();
-    if (!identity) throw new Error("Not authenticated");
+    const user = await getAuthenticatedUser(ctx);
+    assertRole(user, ["Admin"]);
     const existing = await ctx.db.get(args.id);
     if (!existing) throw new Error("Sponsor not found");
     await ctx.db.delete(args.id);

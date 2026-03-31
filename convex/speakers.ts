@@ -1,5 +1,6 @@
 import { query, mutation } from "./_generated/server";
 import { v } from "convex/values";
+import { getAuthenticatedUser, assertRole } from "./auth.helpers";
 
 const SPEAKER_STATUS = v.union(
   v.literal("Confirmed"),
@@ -23,7 +24,7 @@ export const getById = query({
     if (!speaker) return null;
 
     // Event history: find all sessions this speaker is assigned to
-    const sessions = await ctx.db.query("sessions").collect();
+    const sessions = await ctx.db.query("sessions").take(500);
     const speakerSessions = sessions.filter((s) =>
       (s.speakerIds ?? []).some((sid) => sid === args.id)
     );
@@ -58,8 +59,8 @@ export const create = mutation({
     status: SPEAKER_STATUS,
   },
   handler: async (ctx, args) => {
-    const identity = await ctx.auth.getUserIdentity();
-    if (!identity) throw new Error("Not authenticated");
+    const user = await getAuthenticatedUser(ctx);
+    assertRole(user, ["Admin", "EventCoordinator", "Coordinator"]);
     return await ctx.db.insert("speakers", {
       ...args,
       createdAt: Date.now(),
@@ -80,8 +81,8 @@ export const update = mutation({
     status: v.optional(SPEAKER_STATUS),
   },
   handler: async (ctx, args) => {
-    const identity = await ctx.auth.getUserIdentity();
-    if (!identity) throw new Error("Not authenticated");
+    const user = await getAuthenticatedUser(ctx);
+    assertRole(user, ["Admin", "EventCoordinator", "Coordinator"]);
     const { id, ...fields } = args;
     const existing = await ctx.db.get(id);
     if (!existing) throw new Error("Speaker not found");
@@ -95,8 +96,8 @@ export const update = mutation({
 export const remove = mutation({
   args: { id: v.id("speakers") },
   handler: async (ctx, args) => {
-    const identity = await ctx.auth.getUserIdentity();
-    if (!identity) throw new Error("Not authenticated");
+    const user = await getAuthenticatedUser(ctx);
+    assertRole(user, ["Admin"]);
     const existing = await ctx.db.get(args.id);
     if (!existing) throw new Error("Speaker not found");
     await ctx.db.delete(args.id);

@@ -20,7 +20,7 @@ export const getAttendanceReport = query({
         const registrations = await ctx.db
           .query("registrations")
           .withIndex("by_eventId", (q) => q.eq("eventId", event._id))
-          .collect();
+          .take(500);
 
         const confirmed = registrations.filter((r) => r.status === "Confirmed");
         const totalRegistered = confirmed.reduce((sum, r) => sum + r.quantity, 0);
@@ -77,7 +77,7 @@ export const getRevenueReport = query({
         const registrations = await ctx.db
           .query("registrations")
           .withIndex("by_eventId", (q) => q.eq("eventId", event._id))
-          .collect();
+          .take(500);
 
         const paidRegistrations = registrations.filter(
           (r) => r.status !== "Cancelled" && r.paymentStatus === "Paid"
@@ -93,7 +93,7 @@ export const getRevenueReport = query({
         const eventSponsors = await ctx.db
           .query("eventSponsors")
           .withIndex("by_eventId", (q) => q.eq("eventId", event._id))
-          .collect();
+          .take(100);
         const sponsorRevenue = eventSponsors.reduce((sum, es) => sum + es.amount, 0);
 
         return {
@@ -122,8 +122,8 @@ export const getSponsorTotals = query({
     const identity = await ctx.auth.getUserIdentity();
     if (!identity) return null;
 
-    const eventSponsors = await ctx.db.query("eventSponsors").collect();
-    const sponsors = await ctx.db.query("sponsors").collect();
+    const eventSponsors = await ctx.db.query("eventSponsors").take(500);
+    const sponsors = await ctx.db.query("sponsors").take(200);
 
     // Aggregate by sponsorship level
     const byLevel: Record<string, { count: number; totalAmount: number; sponsors: Set<string> }> = {};

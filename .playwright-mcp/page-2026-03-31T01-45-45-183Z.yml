@@ -1,0 +1,14 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - banner [ref=e3]:
+      - heading "Upcoming Events" [level=1] [ref=e4]
+    - main [ref=e5]:
+      - generic [ref=e6]:
+        - combobox [ref=e7]:
+          - generic [ref=e8]: Filter by type
+          - img: ▼
+        - textbox [ref=e9]
+      - paragraph [ref=e11]: Loading...
+  - button "Open Next.js Dev Tools" [ref=e17] [cursor=pointer]:
+    - img [ref=e18]
+  - alert [ref=e21]

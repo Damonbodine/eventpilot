@@ -1,5 +1,6 @@
 import { query, mutation } from "./_generated/server";
 import { v } from "convex/values";
+import { getAuthenticatedUser, assertRole, assertCanManageEvent } from "./auth.helpers";
 
 const EVENT_STATUS = v.union(
   v.literal("Draft"),
@@ -51,7 +52,7 @@ export const listPublic = query({
     const events = await ctx.db
       .query("events")
       .withIndex("by_status", (q) => q.eq("status", "Published"))
-      .collect();
+      .take(100);
     return events.filter(
       (e) =>
         e.isPublic &&
@@ -78,7 +79,7 @@ export const getUpcoming = query({
     const events = await ctx.db
       .query("events")
       .withIndex("by_status", (q) => q.eq("status", "Published"))
-      .collect();
+      .take(100);
     return events.filter((e) => (e.startDateMs ?? 0) >= now && (e.startDateMs ?? 0) <= cutoff);
   },
 });
@@ -93,7 +94,7 @@ export const getAttentionNeeded = query({
     const drafts = await ctx.db
       .query("events")
       .withIndex("by_status", (q) => q.eq("status", "Draft"))
-      .collect();
+      .take(100);
 
     // Events with upcoming deadline but still in Draft, or approaching start with low registrations
     const results = [];
@@ -126,7 +127,7 @@ export const getDashboardStats = query({
     const startOfLastMonth = new Date(startOfThisMonth);
     startOfLastMonth.setMonth(startOfLastMonth.getMonth() - 1);
 
-    const allRegistrations = await ctx.db.query("registrations").collect();
+    const allRegistrations = await ctx.db.query("registrations").take(1000);
     const thisMonthRegs = allRegistrations.filter(
       (r) => r.registrationDate >= startOfThisMonth.getTime() && r.status !== "Cancelled"
     );
@@ -144,12 +145,12 @@ export const getDashboardStats = query({
     const upcomingEvents = await ctx.db
       .query("events")
       .withIndex("by_status", (q) => q.eq("status", "Published"))
-      .collect();
+      .take(100);
     const upcomingCount = upcomingEvents.filter((e) => (e.startDateMs ?? 0) >= now).length;
 
     // Sponsorship revenue for upcoming events
     const upcomingEventIds = new Set(upcomingEvents.filter((e) => (e.startDateMs ?? 0) >= now).map((e) => e._id));
-    const eventSponsors = await ctx.db.query("eventSponsors").collect();
+    const eventSponsors = await ctx.db.query("eventSponsors").take(500);
     const sponsorRevenue = eventSponsors
       .filter((es) => upcomingEventIds.has(es.eventId))
       .reduce((sum, es) => sum + es.amount, 0);
@@ -186,14 +187,8 @@ export const create = mutation({
     coordinatorId: v.optional(v.id("users")),
   },
   handler: async (ctx, args) => {
-    const identity = await ctx.auth.getUserIdentity();
-    if (!identity) throw new Error("Not authenticated");
-
-    const user = await ctx.db
-      .query("users")
-      .withIndex("by_clerkId", (q) => q.eq("clerkId", identity.subject))
-      .unique();
-    if (!user) throw new Error("User not found");
+    const user = await getAuthenticatedUser(ctx);
+    assertRole(user, ["Admin", "EventCoordinator", "Coordinator"]);
 
     return await ctx.db.insert("events", {
       ...args,
@@ -229,8 +224,8 @@ export const update = mutation({
     status: v.optional(EVENT_STATUS),
   },
   handler: async (ctx, args) => {
-    const identity = await ctx.auth.getUserIdentity();
-    if (!identity) throw new Error("Not authenticated");
+    const user = await getAuthenticatedUser(ctx);
+    await assertCanManageEvent(ctx, user, args.id);
     const { id, ...fields } = args;
     const existing = await ctx.db.get(id);
     if (!existing) throw new Error("Event not found");
@@ -244,8 +239,8 @@ export const update = mutation({
 export const remove = mutation({
   args: { id: v.id("events") },
   handler: async (ctx, args) => {
-    const identity = await ctx.auth.getUserIdentity();
-    if (!identity) throw new Error("Not authenticated");
+    const user = await getAuthenticatedUser(ctx);
+    await assertCanManageEvent(ctx, user, args.id);
     const existing = await ctx.db.get(args.id);
     if (!existing) throw new Error("Event not found");
     await ctx.db.delete(args.id);
@@ -255,8 +250,8 @@ export const remove = mutation({
 export const publish = mutation({
   args: { id: v.id("events") },
   handler: async (ctx, args) => {
-    const identity = await ctx.auth.getUserIdentity();
-    if (!identity) throw new Error("Not authenticated");
+    const user = await getAuthenticatedUser(ctx);
+    await assertCanManageEvent(ctx, user, args.id);
 
     const event = await ctx.db.get(args.id);
     if (!event) throw new Error("Event not found");
@@ -268,7 +263,7 @@ export const publish = mutation({
     const ticketTypes = await ctx.db
       .query("ticketTypes")
       .withIndex("by_eventId", (q) => q.eq("eventId", args.id))
-      .collect();
+      .take(100);
     if (ticketTypes.length === 0) {
       throw new Error("Event must have at least one ticket type before publishing");
     }
@@ -283,8 +278,8 @@ export const publish = mutation({
 export const cancel = mutation({
   args: { id: v.id("events") },
   handler: async (ctx, args) => {
-    const identity = await ctx.auth.getUserIdentity();
-    if (!identity) throw new Error("Not authenticated");
+    const user = await getAuthenticatedUser(ctx);
+    await assertCanManageEvent(ctx, user, args.id);
 
     const event = await ctx.db.get(args.id);
     if (!event) throw new Error("Event not found");
@@ -295,7 +290,7 @@ export const cancel = mutation({
     const registrations = await ctx.db
       .query("registrations")
       .withIndex("by_eventId", (q) => q.eq("eventId", args.id))
-      .collect();
+      .take(500);
 
     for (const reg of registrations) {
       if (reg.status !== "Cancelled") {
@@ -308,17 +303,11 @@ export const cancel = mutation({
 export const duplicate = mutation({
   args: { id: v.id("events") },
   handler: async (ctx, args) => {
-    const identity = await ctx.auth.getUserIdentity();
-    if (!identity) throw new Error("Not authenticated");
+    const user = await getAuthenticatedUser(ctx);
+    assertRole(user, ["Admin", "EventCoordinator", "Coordinator"]);
 
     const source = await ctx.db.get(args.id);
     if (!source) throw new Error("Event not found");
-
-    const user = await ctx.db
-      .query("users")
-      .withIndex("by_clerkId", (q) => q.eq("clerkId", identity.subject))
-      .unique();
-    if (!user) throw new Error("User not found");
 
     // Business rule: new Draft, no registrations, copy all settings
     const newEventId = await ctx.db.insert("events", {
@@ -350,7 +339,7 @@ export const duplicate = mutation({
     const ticketTypes = await ctx.db
       .query("ticketTypes")
       .withIndex("by_eventId", (q) => q.eq("eventId", args.id))
-      .collect();
+      .take(100);
     for (const tt of ticketTypes) {
       await ctx.db.insert("ticketTypes", {
         eventId: newEventId,

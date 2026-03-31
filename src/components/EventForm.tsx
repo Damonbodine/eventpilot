@@ -75,6 +75,7 @@ export function EventForm({ event }: EventFormProps) {
     try {
       const startDateMs = new Date(startDate).getTime();
       const endDateMs = new Date(endDate).getTime();
+      const registrationDeadlineMs = registrationDeadline ? new Date(registrationDeadline).getTime() : undefined;
       const payload = {
         name,
         description: description || undefined,
@@ -91,6 +92,7 @@ export function EventForm({ event }: EventFormProps) {
         virtualLink: virtualLink || undefined,
         maxCapacity: maxCapacity ? parseInt(maxCapacity) : undefined,
         registrationDeadline: registrationDeadline || undefined,
+        registrationDeadlineMs,
         isPublic,
         coordinatorId: coordinatorId ? (coordinatorId as Id<'users'>) : undefined,
       };
@@ -121,7 +123,11 @@ export function EventForm({ event }: EventFormProps) {
       <div className="space-y-1">
         <Label>Event Type *</Label>
         <Select value={eventType} onValueChange={(v) => v !== null && setEventType(v)} required>
-          <SelectTrigger><SelectValue placeholder="Select type" /></SelectTrigger>
+          <SelectTrigger>
+            <SelectValue placeholder="Select type">
+              {eventType || undefined}
+            </SelectValue>
+          </SelectTrigger>
           <SelectContent>{EVENT_TYPES.map(t => <SelectItem key={t} value={t}>{t}</SelectItem>)}</SelectContent>
         </Select>
       </div>
@@ -148,14 +154,22 @@ export function EventForm({ event }: EventFormProps) {
       <div className="space-y-1">
         <Label>Timezone *</Label>
         <Select value={timezone} onValueChange={(v) => v !== null && setTimezone(v)}>
-          <SelectTrigger><SelectValue /></SelectTrigger>
+          <SelectTrigger>
+            <SelectValue placeholder="Select timezone">
+              {timezone || undefined}
+            </SelectValue>
+          </SelectTrigger>
           <SelectContent>{TIMEZONES.map(tz => <SelectItem key={tz} value={tz}>{tz}</SelectItem>)}</SelectContent>
         </Select>
       </div>
       <div className="space-y-1">
         <Label>Venue</Label>
         <Select value={venueId} onValueChange={(v) => v !== null && setVenueId(v)}>
-          <SelectTrigger><SelectValue placeholder="Select venue" /></SelectTrigger>
+          <SelectTrigger>
+            <SelectValue placeholder="Select venue">
+              {venueId ? ((venues ?? []).find((v: {_id: string; name: string}) => v._id === venueId)?.name ?? venueId) : undefined}
+            </SelectValue>
+          </SelectTrigger>
           <SelectContent>
             <SelectItem value="">None (virtual)</SelectItem>
             {(venues ?? []).map((v: {_id: string; name: string}) => <SelectItem key={v._id} value={v._id}>{v.name}</SelectItem>)}
@@ -187,7 +201,14 @@ export function EventForm({ event }: EventFormProps) {
       <div className="space-y-1">
         <Label>Coordinator *</Label>
         <Select value={coordinatorId} onValueChange={(v) => v !== null && setCoordinatorId(v)} required>
-          <SelectTrigger><SelectValue placeholder="Select coordinator" /></SelectTrigger>
+          <SelectTrigger>
+            <SelectValue placeholder="Select coordinator">
+              {coordinatorId ? (() => {
+                const u = (users ?? []).find((u: {_id: string; name?: string; firstName?: string; lastName?: string}) => u._id === coordinatorId) as {_id: string; name?: string; firstName?: string; lastName?: string} | undefined;
+                return u ? (u.name ?? [u.firstName, u.lastName].filter(Boolean).join(" ")) : undefined;
+              })() : undefined}
+            </SelectValue>
+          </SelectTrigger>
           <SelectContent>{(users ?? []).map((u: {_id: string; name?: string; firstName?: string; lastName?: string}) => <SelectItem key={u._id} value={u._id}>{u.name ?? [u.firstName, u.lastName].filter(Boolean).join(" ")}</SelectItem>)}</SelectContent>
         </Select>
       </div>

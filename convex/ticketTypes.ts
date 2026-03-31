@@ -1,5 +1,6 @@
 import { query, mutation } from "./_generated/server";
 import { v } from "convex/values";
+import { getAuthenticatedUser, assertCanManageEvent } from "./auth.helpers";
 
 const TICKET_STATUS = v.union(
   v.literal("Active"),
@@ -13,7 +14,7 @@ export const listByEvent = query({
     return await ctx.db
       .query("ticketTypes")
       .withIndex("by_eventId", (q) => q.eq("eventId", args.eventId))
-      .collect();
+      .take(100);
   },
 });
 
@@ -30,8 +31,8 @@ export const create = mutation({
     salesEndDateMs: v.optional(v.number()),
   },
   handler: async (ctx, args) => {
-    const identity = await ctx.auth.getUserIdentity();
-    if (!identity) throw new Error("Not authenticated");
+    const user = await getAuthenticatedUser(ctx);
+    await assertCanManageEvent(ctx, user, args.eventId);
     const event = await ctx.db.get(args.eventId);
     if (!event) throw new Error("Event not found");
     return await ctx.db.insert("ticketTypes", {
@@ -56,11 +57,11 @@ export const update = mutation({
     status: v.optional(TICKET_STATUS),
   },
   handler: async (ctx, args) => {
-    const identity = await ctx.auth.getUserIdentity();
-    if (!identity) throw new Error("Not authenticated");
+    const user = await getAuthenticatedUser(ctx);
     const { id, ...fields } = args;
     const existing = await ctx.db.get(id);
     if (!existing) throw new Error("Ticket type not found");
+    await assertCanManageEvent(ctx, user, existing.eventId);
     const updates = Object.fromEntries(
       Object.entries(fields).filter(([, v]) => v !== undefined)
     );
@@ -71,10 +72,10 @@ export const update = mutation({
 export const remove = mutation({
   args: { id: v.id("ticketTypes") },
   handler: async (ctx, args) => {
-    const identity = await ctx.auth.getUserIdentity();
-    if (!identity) throw new Error("Not authenticated");
+    const user = await getAuthenticatedUser(ctx);
     const existing = await ctx.db.get(args.id);
     if (!existing) throw new Error("Ticket type not found");
+    await assertCanManageEvent(ctx, user, existing.eventId);
     await ctx.db.delete(args.id);
   },
 });

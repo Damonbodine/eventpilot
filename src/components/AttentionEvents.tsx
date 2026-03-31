@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { buttonVariants } from "@/components/ui/button";
 import { AlertTriangleIcon } from "lucide-react";
 import Link from "next/link";
-import { cn } from "@/lib/utils";
+import { cn, formatDate } from "@/lib/utils";
 
 export function AttentionEvents() {
   const events = useQuery(api.events.getAttentionNeeded);
@@ -58,7 +58,7 @@ export function AttentionEvents() {
                 <div className="flex flex-col gap-1">
                   <p className="text-sm font-medium text-foreground">{event.name}</p>
                   <p className="text-xs text-amber-400">
-                    {event.reason ?? event.status} · {event.startDate}
+                    {event.reason ?? event.status} · {formatDate(event.startDate)}
                   </p>
                 </div>
                 <Link href={`/events/${event._id}`} className={cn(buttonVariants({ variant: 'ghost', size: 'sm' }))}>Fix</Link>

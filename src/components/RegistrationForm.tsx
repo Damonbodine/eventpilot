@@ -95,7 +95,11 @@ export function RegistrationForm({ event, ticketTypes, onSuccess }: Registration
       <div className="space-y-1">
         <Label>Ticket Type *</Label>
         <Select value={ticketTypeId} onValueChange={(v) => v !== null && setTicketTypeId(v)} required>
-          <SelectTrigger><SelectValue placeholder="Select ticket" /></SelectTrigger>
+          <SelectTrigger>
+            <SelectValue placeholder="Select ticket">
+              {selectedTicket ? `${selectedTicket.name} — ${selectedTicket.price === 0 ? 'Free' : `$${selectedTicket.price}`}` : undefined}
+            </SelectValue>
+          </SelectTrigger>
           <SelectContent>
             {ticketTypes.map(t => (
               <SelectItem key={t._id} value={t._id}>

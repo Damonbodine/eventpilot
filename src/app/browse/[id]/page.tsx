@@ -6,6 +6,7 @@ import { useParams } from 'next/navigation';
 import { Id } from '@/convex/_generated/dataModel';
 import { RegistrationForm } from '@/components/RegistrationForm';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { formatDate, formatEnumLabel } from '@/lib/utils';
 
 export default function PublicEventDetailPage() {
   const params = useParams();
@@ -21,7 +22,7 @@ export default function PublicEventDetailPage() {
     <div className="min-h-screen bg-background">
       <header className="border-b border-border py-8 px-8 bg-card">
         <h1 className="text-3xl font-bold text-foreground">{event.name}</h1>
-        <p className="text-muted-foreground mt-1">{event.eventType} · {event.status}</p>
+        <p className="text-muted-foreground mt-1">{formatEnumLabel(event.eventType)} · {event.status}</p>
       </header>
       <main className="mx-auto max-w-4xl px-8 py-8 grid grid-cols-1 gap-8 lg:grid-cols-3">
         <div className="lg:col-span-2">
@@ -30,8 +31,8 @@ export default function PublicEventDetailPage() {
             <CardContent>
               <p className="text-muted-foreground">{event.description ?? 'No description provided.'}</p>
               <div className="mt-4 space-y-2 text-sm">
-                <p><span className="font-medium">Start:</span> {event.startTime}</p>
-                <p><span className="font-medium">End:</span> {event.endTime}</p>
+                <p><span className="font-medium">Start:</span> {formatDate(event.startDate)} {event.startTime}</p>
+                <p><span className="font-medium">End:</span> {formatDate(event.endDate)} {event.endTime}</p>
                 <p><span className="font-medium">Timezone:</span> {event.timezone}</p>
                 {event.isVirtual && event.virtualLink && (
                   <p><span className="font-medium">Virtual Link:</span>{' '}

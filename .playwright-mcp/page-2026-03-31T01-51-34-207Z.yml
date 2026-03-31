@@ -1,0 +1,22 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - banner [ref=e13]:
+      - heading "Community Volunteer Orientation" [level=1] [ref=e14]
+      - paragraph [ref=e15]: VolunteerOrientation · Published
+    - main [ref=e16]:
+      - generic [ref=e18]:
+        - generic [ref=e20]: About this Event
+        - generic [ref=e21]:
+          - paragraph [ref=e22]: Welcome orientation for new volunteers. Includes training overview, team assignments, and Q&A with program leads.
+          - generic [ref=e23]:
+            - paragraph [ref=e24]: "Start: 10:00"
+            - paragraph [ref=e25]: "End: 14:00"
+            - paragraph [ref=e26]: "Timezone: America/Chicago"
+      - generic [ref=e28]:
+        - generic [ref=e30]: Register
+        - generic [ref=e65]:
+          - paragraph [ref=e66]: Registration Confirmed!
+          - paragraph [ref=e67]: A confirmation will be sent to qa-reg@test.com.
+  - button "Open Next.js Dev Tools" [ref=e8] [cursor=pointer]:
+    - img [ref=e9]
+  - alert [ref=e12]

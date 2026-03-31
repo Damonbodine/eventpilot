@@ -1,0 +1,132 @@
+- generic [ref=e1]:
+  - button "Open Next.js Dev Tools" [ref=e9] [cursor=pointer]:
+    - img [ref=e10]
+  - alert [ref=e13]
+  - generic [ref=e14]:
+    - generic [ref=e17]:
+      - link "EventPilot" [ref=e19] [cursor=pointer]:
+        - /url: /dashboard
+        - img [ref=e20]
+        - generic [ref=e22]: EventPilot
+      - generic [ref=e24]:
+        - generic [ref=e25]: Navigation
+        - list [ref=e27]:
+          - listitem [ref=e28]:
+            - link "Dashboard" [ref=e29] [cursor=pointer]:
+              - /url: /dashboard
+              - img [ref=e30]
+              - generic [ref=e35]: Dashboard
+          - listitem [ref=e36]:
+            - link "Events" [ref=e37] [cursor=pointer]:
+              - /url: /events
+              - img [ref=e38]
+              - generic [ref=e40]: Events
+          - listitem [ref=e41]:
+            - link "Calendar" [ref=e42] [cursor=pointer]:
+              - /url: /calendar
+              - img [ref=e43]
+              - generic [ref=e45]: Calendar
+          - listitem [ref=e46]:
+            - link "Speakers" [ref=e47] [cursor=pointer]:
+              - /url: /speakers
+              - img [ref=e48]
+              - generic [ref=e52]: Speakers
+          - listitem [ref=e53]:
+            - link "Sponsors" [ref=e54] [cursor=pointer]:
+              - /url: /sponsors
+              - img [ref=e55]
+              - generic [ref=e59]: Sponsors
+          - listitem [ref=e60]:
+            - link "Venues" [ref=e61] [cursor=pointer]:
+              - /url: /venues
+              - img [ref=e62]
+              - generic [ref=e65]: Venues
+          - listitem [ref=e66]:
+            - link "Reports" [ref=e67] [cursor=pointer]:
+              - /url: /reports
+              - img [ref=e68]
+              - generic [ref=e70]: Reports
+      - generic [ref=e72]:
+        - button "Open user menu" [ref=e74] [cursor=pointer]:
+          - img "Test Admin's logo" [ref=e77]
+        - generic [ref=e79]:
+          - paragraph [ref=e80]: Test Admin
+          - paragraph [ref=e81]: Admin
+    - main [ref=e82]:
+      - main [ref=e83]:
+        - generic [ref=e84]:
+          - heading "Add Venue" [level=1] [ref=e86]
+          - generic [ref=e87]:
+            - generic [ref=e88]:
+              - generic [ref=e89]: Venue Name *
+              - textbox "Venue Name *" [ref=e90]: QA Test Community Hall
+            - generic [ref=e91]:
+              - generic [ref=e92]: Street Address *
+              - textbox "Street Address *" [ref=e93]: 123 Test St
+            - generic [ref=e94]:
+              - generic [ref=e95]:
+                - generic [ref=e96]: City *
+                - textbox "City *" [ref=e97]: Austin
+              - generic [ref=e98]:
+                - generic [ref=e99]: State *
+                - textbox "State *" [ref=e100]: TX
+              - generic [ref=e101]:
+                - generic [ref=e102]: ZIP *
+                - textbox "ZIP *" [ref=e103]: "78702"
+            - generic [ref=e104]:
+              - generic [ref=e105]: Capacity *
+              - spinbutton "Capacity *" [ref=e106]: "150"
+            - generic [ref=e107]:
+              - generic [ref=e108]:
+                - generic [ref=e109]: Contact Name
+                - textbox "Contact Name" [ref=e110]: Jane QA
+              - generic [ref=e111]:
+                - generic [ref=e112]: Contact Email
+                - textbox "Contact Email" [ref=e113]: jane@test.com
+            - generic [ref=e114]:
+              - generic [ref=e115]: Contact Phone
+              - textbox "Contact Phone" [ref=e116]
+            - generic [ref=e117]:
+              - generic [ref=e118]: Amenities
+              - generic [ref=e119]:
+                - generic [ref=e120]:
+                  - checkbox "Projector" [ref=e121]
+                  - checkbox [ref=e122]
+                  - text: Projector
+                - generic [ref=e123]:
+                  - checkbox "Microphone" [ref=e124]
+                  - checkbox [ref=e125]
+                  - text: Microphone
+                - generic [ref=e126]:
+                  - checkbox "Wifi" [checked] [active] [ref=e127]:
+                    - img [ref=e152]
+                  - checkbox [checked] [ref=e128]
+                  - text: Wifi
+                - generic [ref=e129]:
+                  - checkbox "Parking" [ref=e130]
+                  - checkbox [ref=e131]
+                  - text: Parking
+                - generic [ref=e132]:
+                  - checkbox "Catering" [ref=e133]
+                  - checkbox [ref=e134]
+                  - text: Catering
+                - generic [ref=e135]:
+                  - checkbox "Wheelchair" [ref=e136]
+                  - checkbox [ref=e137]
+                  - text: Wheelchair
+                - generic [ref=e138]:
+                  - checkbox "Outdoor" [ref=e139]
+                  - checkbox [ref=e140]
+                  - text: Outdoor
+                - generic [ref=e141]:
+                  - checkbox "Kitchen" [ref=e142]
+                  - checkbox [ref=e143]
+                  - text: Kitchen
+                - generic [ref=e144]:
+                  - checkbox "Stage" [ref=e145]
+                  - checkbox [ref=e146]
+                  - text: Stage
+            - generic [ref=e147]:
+              - generic [ref=e148]: Notes
+              - textbox "Notes" [ref=e149]
+            - button "Add Venue" [ref=e150]

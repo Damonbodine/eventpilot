@@ -85,7 +85,7 @@ export function SponsorDataTable({ sponsors, onEdit, onRemove }: SponsorDataTabl
                 </Badge>
               </TableCell>
               <TableCell className="text-sm font-medium text-foreground">
-                ${(sponsor.amount / 100).toLocaleString()}
+                ${sponsor.amount.toLocaleString()}
               </TableCell>
               <TableCell>
                 <Badge

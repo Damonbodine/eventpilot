@@ -8,7 +8,7 @@ export const getCurrentUser = query({
     if (!identity) return null;
     const user = await ctx.db
       .query("users")
-      .withIndex("by_clerkId", (q) => q.eq("clerkId", identity.subject))
+      .withIndex("by_clerkId", (q) => q.eq("clerkId", identity.tokenIdentifier))
       .unique();
     return user ?? null;
   },
