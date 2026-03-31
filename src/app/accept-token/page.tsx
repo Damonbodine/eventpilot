@@ -1,18 +1,18 @@
 "use client";
 
-import { useAuth, useSignIn } from "@clerk/nextjs";
+import { useAuth, useClerk, useSignIn } from "@clerk/nextjs";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState, Suspense } from "react";
 
 function AcceptTokenInner() {
   const { isSignedIn } = useAuth();
-  const { signIn, setActive } = useSignIn();
+  const { signIn } = useSignIn();
+  const { setActive } = useClerk();
   const router = useRouter();
   const searchParams = useSearchParams();
-  const [status, setStatus] = useState("Signing in...");
+  const [msg, setMsg] = useState("Signing in...");
 
   useEffect(() => {
-    // Already signed in — just go to dashboard
     if (isSignedIn) {
       router.push("/dashboard");
       return;
@@ -24,31 +24,25 @@ function AcceptTokenInner() {
     signIn
       .create({ strategy: "ticket", ticket: token })
       .then((result) => {
-        if (result.status === "complete" && result.createdSessionId) {
-          setActive!({ session: result.createdSessionId }).then(() => {
-            router.push("/dashboard");
-          });
-        } else if (result.createdSessionId) {
-          setActive!({ session: result.createdSessionId }).then(() => {
+        if (result.createdSessionId) {
+          setActive({ session: result.createdSessionId }).then(() => {
             router.push("/dashboard");
           });
         } else {
-          setStatus(`Sign-in status: ${result.status ?? "unknown"}`);
+          setMsg("Sign-in status: " + (result.status ?? "unknown"));
         }
       })
       .catch((err) => {
         const clerkErr = err as { errors?: Array<{ code: string; message: string }> };
-        const code = clerkErr.errors?.[0]?.code;
-        if (code === "session_exists") {
-          // Already signed in — redirect
+        if (clerkErr.errors?.[0]?.code === "session_exists") {
           router.push("/dashboard");
         } else {
-          setStatus(`Error: ${clerkErr.errors?.[0]?.message ?? String(err)}`);
+          setMsg("Error: " + (clerkErr.errors?.[0]?.message ?? String(err)));
         }
       });
   }, [isSignedIn, searchParams, signIn, setActive, router]);
 
-  return <div style={{ padding: 40 }}>{status}</div>;
+  return <div style={{ padding: 40 }}>{msg}</div>;
 }
 
 export default function AcceptTokenPage() {
